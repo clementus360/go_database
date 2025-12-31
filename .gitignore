@@ -1,0 +1,37 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go build artifacts
+*.test
+*.out
+*.log
+
+# Build directories
+bin/
+build/
+dist/
+
+# Dependency directories (if vendored)
+vendor/
+
+# IDE/editor settings
+*.swp
+*.swo
+*.DS_Store
+.vscode/
+.idea/
+
+# Go modules cache
+/.gocache/
+
+# env file
+.env
+
+# TLS certificates and keys
+*.crt
+*.key
+*.pem
