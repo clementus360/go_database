@@ -2,18 +2,19 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v6.33.0
-// source: internal/proto/stream/stream.proto
+// source: stream.proto
 
 package proto
 
 import (
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
+
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
 )
 
 const (
@@ -59,11 +60,11 @@ func (x StreamStatus) String() string {
 }
 
 func (StreamStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_proto_stream_stream_proto_enumTypes[0].Descriptor()
+	return file_stream_proto_enumTypes[0].Descriptor()
 }
 
 func (StreamStatus) Type() protoreflect.EnumType {
-	return &file_internal_proto_stream_stream_proto_enumTypes[0]
+	return &file_stream_proto_enumTypes[0]
 }
 
 func (x StreamStatus) Number() protoreflect.EnumNumber {
@@ -72,7 +73,7 @@ func (x StreamStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use StreamStatus.Descriptor instead.
 func (StreamStatus) EnumDescriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{0}
+	return file_stream_proto_rawDescGZIP(), []int{0}
 }
 
 type ChannelResponse struct {
@@ -90,7 +91,7 @@ type ChannelResponse struct {
 
 func (x *ChannelResponse) Reset() {
 	*x = ChannelResponse{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[0]
+	mi := &file_stream_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -102,7 +103,7 @@ func (x *ChannelResponse) String() string {
 func (*ChannelResponse) ProtoMessage() {}
 
 func (x *ChannelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[0]
+	mi := &file_stream_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -115,7 +116,7 @@ func (x *ChannelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelResponse.ProtoReflect.Descriptor instead.
 func (*ChannelResponse) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{0}
+	return file_stream_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ChannelResponse) GetId() int32 {
@@ -168,23 +169,24 @@ func (x *ChannelResponse) GetCreatedAt() *timestamppb.Timestamp {
 }
 
 type SessionResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	ChannelId     int32                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Status        StreamStatus           `protobuf:"varint,3,opt,name=status,proto3,enum=stream.StreamStatus" json:"status,omitempty"`
-	Resolution    string                 `protobuf:"bytes,4,opt,name=resolution,proto3" json:"resolution,omitempty"`
-	Bitrate       int32                  `protobuf:"varint,5,opt,name=bitrate,proto3" json:"bitrate,omitempty"`
-	Codec         string                 `protobuf:"bytes,6,opt,name=codec,proto3" json:"codec,omitempty"`
-	ViewCount     int32                  `protobuf:"varint,7,opt,name=view_count,json=viewCount,proto3" json:"view_count,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ChannelId       int32                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	Status          StreamStatus           `protobuf:"varint,3,opt,name=status,proto3,enum=stream.StreamStatus" json:"status,omitempty"`
+	Resolution      string                 `protobuf:"bytes,4,opt,name=resolution,proto3" json:"resolution,omitempty"`
+	Bitrate         int32                  `protobuf:"varint,5,opt,name=bitrate,proto3" json:"bitrate,omitempty"`
+	Codec           string                 `protobuf:"bytes,6,opt,name=codec,proto3" json:"codec,omitempty"`
+	ViewCount       int32                  `protobuf:"varint,7,opt,name=view_count,json=viewCount,proto3" json:"view_count,omitempty"`
+	StartTime       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime         *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	LastHeartbeatAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_heartbeat_at,json=lastHeartbeatAt,proto3" json:"last_heartbeat_at,omitempty"` // NEW
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *SessionResponse) Reset() {
 	*x = SessionResponse{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[1]
+	mi := &file_stream_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -196,7 +198,7 @@ func (x *SessionResponse) String() string {
 func (*SessionResponse) ProtoMessage() {}
 
 func (x *SessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[1]
+	mi := &file_stream_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -209,7 +211,7 @@ func (x *SessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SessionResponse.ProtoReflect.Descriptor instead.
 func (*SessionResponse) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{1}
+	return file_stream_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *SessionResponse) GetId() int64 {
@@ -275,6 +277,13 @@ func (x *SessionResponse) GetEndTime() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *SessionResponse) GetLastHeartbeatAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastHeartbeatAt
+	}
+	return nil
+}
+
 type CreateChannelRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -285,7 +294,7 @@ type CreateChannelRequest struct {
 
 func (x *CreateChannelRequest) Reset() {
 	*x = CreateChannelRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[2]
+	mi := &file_stream_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -297,7 +306,7 @@ func (x *CreateChannelRequest) String() string {
 func (*CreateChannelRequest) ProtoMessage() {}
 
 func (x *CreateChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[2]
+	mi := &file_stream_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -310,7 +319,7 @@ func (x *CreateChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateChannelRequest.ProtoReflect.Descriptor instead.
 func (*CreateChannelRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{2}
+	return file_stream_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CreateChannelRequest) GetUserId() int64 {
@@ -338,7 +347,7 @@ type GetChannelRequest struct {
 
 func (x *GetChannelRequest) Reset() {
 	*x = GetChannelRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[3]
+	mi := &file_stream_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -350,7 +359,7 @@ func (x *GetChannelRequest) String() string {
 func (*GetChannelRequest) ProtoMessage() {}
 
 func (x *GetChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[3]
+	mi := &file_stream_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -363,7 +372,7 @@ func (x *GetChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChannelRequest.ProtoReflect.Descriptor instead.
 func (*GetChannelRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{3}
+	return file_stream_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetChannelRequest) GetId() int32 {
@@ -399,7 +408,7 @@ type UpdateChannelRequest struct {
 
 func (x *UpdateChannelRequest) Reset() {
 	*x = UpdateChannelRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[4]
+	mi := &file_stream_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -411,7 +420,7 @@ func (x *UpdateChannelRequest) String() string {
 func (*UpdateChannelRequest) ProtoMessage() {}
 
 func (x *UpdateChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[4]
+	mi := &file_stream_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -424,7 +433,7 @@ func (x *UpdateChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateChannelRequest.ProtoReflect.Descriptor instead.
 func (*UpdateChannelRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{4}
+	return file_stream_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateChannelRequest) GetId() int32 {
@@ -464,7 +473,7 @@ type DeleteChannelRequest struct {
 
 func (x *DeleteChannelRequest) Reset() {
 	*x = DeleteChannelRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[5]
+	mi := &file_stream_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -476,7 +485,7 @@ func (x *DeleteChannelRequest) String() string {
 func (*DeleteChannelRequest) ProtoMessage() {}
 
 func (x *DeleteChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[5]
+	mi := &file_stream_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -489,7 +498,7 @@ func (x *DeleteChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteChannelRequest.ProtoReflect.Descriptor instead.
 func (*DeleteChannelRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{5}
+	return file_stream_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DeleteChannelRequest) GetId() int32 {
@@ -511,7 +520,7 @@ type CreateSessionRequest struct {
 
 func (x *CreateSessionRequest) Reset() {
 	*x = CreateSessionRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[6]
+	mi := &file_stream_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -523,7 +532,7 @@ func (x *CreateSessionRequest) String() string {
 func (*CreateSessionRequest) ProtoMessage() {}
 
 func (x *CreateSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[6]
+	mi := &file_stream_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -536,7 +545,7 @@ func (x *CreateSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSessionRequest.ProtoReflect.Descriptor instead.
 func (*CreateSessionRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{6}
+	return file_stream_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CreateSessionRequest) GetChannelId() int32 {
@@ -576,7 +585,7 @@ type GetSessionRequest struct {
 
 func (x *GetSessionRequest) Reset() {
 	*x = GetSessionRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[7]
+	mi := &file_stream_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -588,7 +597,7 @@ func (x *GetSessionRequest) String() string {
 func (*GetSessionRequest) ProtoMessage() {}
 
 func (x *GetSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[7]
+	mi := &file_stream_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -601,7 +610,7 @@ func (x *GetSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionRequest.ProtoReflect.Descriptor instead.
 func (*GetSessionRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{7}
+	return file_stream_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetSessionRequest) GetId() int64 {
@@ -623,7 +632,7 @@ type UpdateSessionRequest struct {
 
 func (x *UpdateSessionRequest) Reset() {
 	*x = UpdateSessionRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[8]
+	mi := &file_stream_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -635,7 +644,7 @@ func (x *UpdateSessionRequest) String() string {
 func (*UpdateSessionRequest) ProtoMessage() {}
 
 func (x *UpdateSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[8]
+	mi := &file_stream_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,7 +657,7 @@ func (x *UpdateSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSessionRequest.ProtoReflect.Descriptor instead.
 func (*UpdateSessionRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{8}
+	return file_stream_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpdateSessionRequest) GetId() int64 {
@@ -688,7 +697,7 @@ type EndSessionRequest struct {
 
 func (x *EndSessionRequest) Reset() {
 	*x = EndSessionRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[9]
+	mi := &file_stream_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -700,7 +709,7 @@ func (x *EndSessionRequest) String() string {
 func (*EndSessionRequest) ProtoMessage() {}
 
 func (x *EndSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[9]
+	mi := &file_stream_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -713,7 +722,7 @@ func (x *EndSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EndSessionRequest.ProtoReflect.Descriptor instead.
 func (*EndSessionRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{9}
+	return file_stream_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *EndSessionRequest) GetId() int64 {
@@ -734,7 +743,7 @@ type ListSessionsRequest struct {
 
 func (x *ListSessionsRequest) Reset() {
 	*x = ListSessionsRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[10]
+	mi := &file_stream_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -746,7 +755,7 @@ func (x *ListSessionsRequest) String() string {
 func (*ListSessionsRequest) ProtoMessage() {}
 
 func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[10]
+	mi := &file_stream_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -759,7 +768,7 @@ func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsRequest.ProtoReflect.Descriptor instead.
 func (*ListSessionsRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{10}
+	return file_stream_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListSessionsRequest) GetChannelId() int32 {
@@ -793,7 +802,7 @@ type ListSessionsResponse struct {
 
 func (x *ListSessionsResponse) Reset() {
 	*x = ListSessionsResponse{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[11]
+	mi := &file_stream_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -805,7 +814,7 @@ func (x *ListSessionsResponse) String() string {
 func (*ListSessionsResponse) ProtoMessage() {}
 
 func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[11]
+	mi := &file_stream_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -818,7 +827,7 @@ func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsResponse.ProtoReflect.Descriptor instead.
 func (*ListSessionsResponse) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{11}
+	return file_stream_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListSessionsResponse) GetSessions() []*SessionResponse {
@@ -840,13 +849,14 @@ type UpdateProcessingStatusRequest struct {
 	SessionId          int64                  `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	Status             *StreamStatus          `protobuf:"varint,2,opt,name=status,proto3,enum=stream.StreamStatus,oneof" json:"status,omitempty"`
 	ViewCountIncrement *int32                 `protobuf:"varint,3,opt,name=view_count_increment,json=viewCountIncrement,proto3,oneof" json:"view_count_increment,omitempty"`
+	CurrentViewCount   *int32                 `protobuf:"varint,4,opt,name=current_view_count,json=currentViewCount,proto3,oneof" json:"current_view_count,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
 
 func (x *UpdateProcessingStatusRequest) Reset() {
 	*x = UpdateProcessingStatusRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[12]
+	mi := &file_stream_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -858,7 +868,7 @@ func (x *UpdateProcessingStatusRequest) String() string {
 func (*UpdateProcessingStatusRequest) ProtoMessage() {}
 
 func (x *UpdateProcessingStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[12]
+	mi := &file_stream_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -871,7 +881,7 @@ func (x *UpdateProcessingStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProcessingStatusRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProcessingStatusRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{12}
+	return file_stream_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UpdateProcessingStatusRequest) GetSessionId() int64 {
@@ -895,6 +905,13 @@ func (x *UpdateProcessingStatusRequest) GetViewCountIncrement() int32 {
 	return 0
 }
 
+func (x *UpdateProcessingStatusRequest) GetCurrentViewCount() int32 {
+	if x != nil && x.CurrentViewCount != nil {
+		return *x.CurrentViewCount
+	}
+	return 0
+}
+
 type GetStreamKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -904,7 +921,7 @@ type GetStreamKeyRequest struct {
 
 func (x *GetStreamKeyRequest) Reset() {
 	*x = GetStreamKeyRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[13]
+	mi := &file_stream_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -916,7 +933,7 @@ func (x *GetStreamKeyRequest) String() string {
 func (*GetStreamKeyRequest) ProtoMessage() {}
 
 func (x *GetStreamKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[13]
+	mi := &file_stream_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -929,7 +946,7 @@ func (x *GetStreamKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetStreamKeyRequest.ProtoReflect.Descriptor instead.
 func (*GetStreamKeyRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{13}
+	return file_stream_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetStreamKeyRequest) GetUserId() int64 {
@@ -948,7 +965,7 @@ type GetStreamKeyResponse struct {
 
 func (x *GetStreamKeyResponse) Reset() {
 	*x = GetStreamKeyResponse{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[14]
+	mi := &file_stream_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -960,7 +977,7 @@ func (x *GetStreamKeyResponse) String() string {
 func (*GetStreamKeyResponse) ProtoMessage() {}
 
 func (x *GetStreamKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[14]
+	mi := &file_stream_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -973,7 +990,7 @@ func (x *GetStreamKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetStreamKeyResponse.ProtoReflect.Descriptor instead.
 func (*GetStreamKeyResponse) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{14}
+	return file_stream_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetStreamKeyResponse) GetStreamKey() string {
@@ -993,7 +1010,7 @@ type ResetStreamKeyRequest struct {
 
 func (x *ResetStreamKeyRequest) Reset() {
 	*x = ResetStreamKeyRequest{}
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[15]
+	mi := &file_stream_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1005,7 +1022,7 @@ func (x *ResetStreamKeyRequest) String() string {
 func (*ResetStreamKeyRequest) ProtoMessage() {}
 
 func (x *ResetStreamKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_stream_proto_msgTypes[15]
+	mi := &file_stream_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1018,7 +1035,7 @@ func (x *ResetStreamKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetStreamKeyRequest.ProtoReflect.Descriptor instead.
 func (*ResetStreamKeyRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_stream_proto_rawDescGZIP(), []int{15}
+	return file_stream_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ResetStreamKeyRequest) GetUserId() int64 {
@@ -1035,11 +1052,143 @@ func (x *ResetStreamKeyRequest) GetNewKey() string {
 	return ""
 }
 
-var File_internal_proto_stream_stream_proto protoreflect.FileDescriptor
+type GetStaleSessionsRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ThresholdSeconds int32                  `protobuf:"varint,1,opt,name=threshold_seconds,json=thresholdSeconds,proto3" json:"threshold_seconds,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
 
-const file_internal_proto_stream_stream_proto_rawDesc = "" +
+func (x *GetStaleSessionsRequest) Reset() {
+	*x = GetStaleSessionsRequest{}
+	mi := &file_stream_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStaleSessionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStaleSessionsRequest) ProtoMessage() {}
+
+func (x *GetStaleSessionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_stream_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStaleSessionsRequest.ProtoReflect.Descriptor instead.
+func (*GetStaleSessionsRequest) Descriptor() ([]byte, []int) {
+	return file_stream_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetStaleSessionsRequest) GetThresholdSeconds() int32 {
+	if x != nil {
+		return x.ThresholdSeconds
+	}
+	return 0
+}
+
+type GetStaleSessionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionIds    []int64                `protobuf:"varint,1,rep,packed,name=session_ids,json=sessionIds,proto3" json:"session_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStaleSessionsResponse) Reset() {
+	*x = GetStaleSessionsResponse{}
+	mi := &file_stream_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStaleSessionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStaleSessionsResponse) ProtoMessage() {}
+
+func (x *GetStaleSessionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_stream_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStaleSessionsResponse.ProtoReflect.Descriptor instead.
+func (*GetStaleSessionsResponse) Descriptor() ([]byte, []int) {
+	return file_stream_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetStaleSessionsResponse) GetSessionIds() []int64 {
+	if x != nil {
+		return x.SessionIds
+	}
+	return nil
+}
+
+type UpdateSessionHeartbeatRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     int64                  `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateSessionHeartbeatRequest) Reset() {
+	*x = UpdateSessionHeartbeatRequest{}
+	mi := &file_stream_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateSessionHeartbeatRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateSessionHeartbeatRequest) ProtoMessage() {}
+
+func (x *UpdateSessionHeartbeatRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_stream_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateSessionHeartbeatRequest.ProtoReflect.Descriptor instead.
+func (*UpdateSessionHeartbeatRequest) Descriptor() ([]byte, []int) {
+	return file_stream_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *UpdateSessionHeartbeatRequest) GetSessionId() int64 {
+	if x != nil {
+		return x.SessionId
+	}
+	return 0
+}
+
+var File_stream_proto protoreflect.FileDescriptor
+
+const file_stream_proto_rawDesc = "" +
 	"\n" +
-	"\"internal/proto/stream/stream.proto\x12\x06stream\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\fcommon.proto\"\xe5\x01\n" +
+	"\fstream.proto\x12\x06stream\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\fcommon.proto\"\xe5\x01\n" +
 	"\x0fChannelResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12\x1d\n" +
@@ -1049,7 +1198,7 @@ const file_internal_proto_stream_stream_proto_rawDesc = "" +
 	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\x17\n" +
 	"\ais_live\x18\x06 \x01(\bR\x06isLive\x129\n" +
 	"\n" +
-	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xcf\x02\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x97\x03\n" +
 	"\x0fSessionResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
@@ -1064,7 +1213,9 @@ const file_internal_proto_stream_stream_proto_rawDesc = "" +
 	"view_count\x18\a \x01(\x05R\tviewCount\x129\n" +
 	"\n" +
 	"start_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\"N\n" +
+	"\bend_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12F\n" +
+	"\x11last_heartbeat_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x0flastHeartbeatAt\"N\n" +
 	"\x14CreateChannelRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1d\n" +
 	"\n" +
@@ -1121,14 +1272,16 @@ const file_internal_proto_stream_stream_proto_rawDesc = "" +
 	"pageNumber\"\x84\x01\n" +
 	"\x14ListSessionsResponse\x123\n" +
 	"\bsessions\x18\x01 \x03(\v2\x17.stream.SessionResponseR\bsessions\x127\n" +
-	"\tmeta_data\x18\x02 \x01(\v2\x1a.common.PaginationMetadataR\bmetaData\"\xcc\x01\n" +
+	"\tmeta_data\x18\x02 \x01(\v2\x1a.common.PaginationMetadataR\bmetaData\"\x96\x02\n" +
 	"\x1dUpdateProcessingStatusRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\x03R\tsessionId\x121\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x14.stream.StreamStatusH\x00R\x06status\x88\x01\x01\x125\n" +
-	"\x14view_count_increment\x18\x03 \x01(\x05H\x01R\x12viewCountIncrement\x88\x01\x01B\t\n" +
+	"\x14view_count_increment\x18\x03 \x01(\x05H\x01R\x12viewCountIncrement\x88\x01\x01\x121\n" +
+	"\x12current_view_count\x18\x04 \x01(\x05H\x02R\x10currentViewCount\x88\x01\x01B\t\n" +
 	"\a_statusB\x17\n" +
-	"\x15_view_count_increment\".\n" +
+	"\x15_view_count_incrementB\x15\n" +
+	"\x13_current_view_count\".\n" +
 	"\x13GetStreamKeyRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\"5\n" +
 	"\x14GetStreamKeyResponse\x12\x1d\n" +
@@ -1136,12 +1289,20 @@ const file_internal_proto_stream_stream_proto_rawDesc = "" +
 	"stream_key\x18\x01 \x01(\tR\tstreamKey\"I\n" +
 	"\x15ResetStreamKeyRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x17\n" +
-	"\anew_key\x18\x02 \x01(\tR\x06newKey*>\n" +
+	"\anew_key\x18\x02 \x01(\tR\x06newKey\"F\n" +
+	"\x17GetStaleSessionsRequest\x12+\n" +
+	"\x11threshold_seconds\x18\x01 \x01(\x05R\x10thresholdSeconds\";\n" +
+	"\x18GetStaleSessionsResponse\x12\x1f\n" +
+	"\vsession_ids\x18\x01 \x03(\x03R\n" +
+	"sessionIds\">\n" +
+	"\x1dUpdateSessionHeartbeatRequest\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\x03R\tsessionId*>\n" +
 	"\fStreamStatus\x12\v\n" +
 	"\aOFFLINE\x10\x00\x12\b\n" +
 	"\x04LIVE\x10\x01\x12\f\n" +
 	"\bCOMPLETE\x10\x02\x12\t\n" +
-	"\x05ERROR\x10\x032\xf4\x06\n" +
+	"\x05ERROR\x10\x032\xa4\b\n" +
 	"\rStreamService\x12F\n" +
 	"\rCreateChannel\x12\x1c.stream.CreateChannelRequest\x1a\x17.stream.ChannelResponse\x12@\n" +
 	"\n" +
@@ -1157,23 +1318,25 @@ const file_internal_proto_stream_stream_proto_rawDesc = "" +
 	"\n" +
 	"EndSession\x12\x19.stream.EndSessionRequest\x1a\x16.google.protobuf.Empty\x12I\n" +
 	"\fListSessions\x12\x1b.stream.ListSessionsRequest\x1a\x1c.stream.ListSessionsResponse\x12W\n" +
-	"\x16UpdateProcessingStatus\x12%.stream.UpdateProcessingStatusRequest\x1a\x16.google.protobuf.EmptyB\x16Z\x14internal/proto;protob\x06proto3"
+	"\x16UpdateProcessingStatus\x12%.stream.UpdateProcessingStatusRequest\x1a\x16.google.protobuf.Empty\x12U\n" +
+	"\x10GetStaleSessions\x12\x1f.stream.GetStaleSessionsRequest\x1a .stream.GetStaleSessionsResponse\x12W\n" +
+	"\x16UpdateSessionHeartbeat\x12%.stream.UpdateSessionHeartbeatRequest\x1a\x16.google.protobuf.EmptyB\x16Z\x14internal/proto;protob\x06proto3"
 
 var (
-	file_internal_proto_stream_stream_proto_rawDescOnce sync.Once
-	file_internal_proto_stream_stream_proto_rawDescData []byte
+	file_stream_proto_rawDescOnce sync.Once
+	file_stream_proto_rawDescData []byte
 )
 
-func file_internal_proto_stream_stream_proto_rawDescGZIP() []byte {
-	file_internal_proto_stream_stream_proto_rawDescOnce.Do(func() {
-		file_internal_proto_stream_stream_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_internal_proto_stream_stream_proto_rawDesc), len(file_internal_proto_stream_stream_proto_rawDesc)))
+func file_stream_proto_rawDescGZIP() []byte {
+	file_stream_proto_rawDescOnce.Do(func() {
+		file_stream_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_stream_proto_rawDesc), len(file_stream_proto_rawDesc)))
 	})
-	return file_internal_proto_stream_stream_proto_rawDescData
+	return file_stream_proto_rawDescData
 }
 
-var file_internal_proto_stream_stream_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_internal_proto_stream_stream_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
-var file_internal_proto_stream_stream_proto_goTypes = []any{
+var file_stream_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_stream_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_stream_proto_goTypes = []any{
 	(StreamStatus)(0),                     // 0: stream.StreamStatus
 	(*ChannelResponse)(nil),               // 1: stream.ChannelResponse
 	(*SessionResponse)(nil),               // 2: stream.SessionResponse
@@ -1191,75 +1354,83 @@ var file_internal_proto_stream_stream_proto_goTypes = []any{
 	(*GetStreamKeyRequest)(nil),           // 14: stream.GetStreamKeyRequest
 	(*GetStreamKeyResponse)(nil),          // 15: stream.GetStreamKeyResponse
 	(*ResetStreamKeyRequest)(nil),         // 16: stream.ResetStreamKeyRequest
-	(*timestamppb.Timestamp)(nil),         // 17: google.protobuf.Timestamp
-	(*PaginationMetadata)(nil),            // 18: common.PaginationMetadata
-	(*emptypb.Empty)(nil),                 // 19: google.protobuf.Empty
+	(*GetStaleSessionsRequest)(nil),       // 17: stream.GetStaleSessionsRequest
+	(*GetStaleSessionsResponse)(nil),      // 18: stream.GetStaleSessionsResponse
+	(*UpdateSessionHeartbeatRequest)(nil), // 19: stream.UpdateSessionHeartbeatRequest
+	(*timestamppb.Timestamp)(nil),         // 20: google.protobuf.Timestamp
+	(*PaginationMetadata)(nil),            // 21: common.PaginationMetadata
+	(*emptypb.Empty)(nil),                 // 22: google.protobuf.Empty
 }
-var file_internal_proto_stream_stream_proto_depIdxs = []int32{
-	17, // 0: stream.ChannelResponse.created_at:type_name -> google.protobuf.Timestamp
+var file_stream_proto_depIdxs = []int32{
+	20, // 0: stream.ChannelResponse.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 1: stream.SessionResponse.status:type_name -> stream.StreamStatus
-	17, // 2: stream.SessionResponse.start_time:type_name -> google.protobuf.Timestamp
-	17, // 3: stream.SessionResponse.end_time:type_name -> google.protobuf.Timestamp
-	2,  // 4: stream.ListSessionsResponse.sessions:type_name -> stream.SessionResponse
-	18, // 5: stream.ListSessionsResponse.meta_data:type_name -> common.PaginationMetadata
-	0,  // 6: stream.UpdateProcessingStatusRequest.status:type_name -> stream.StreamStatus
-	3,  // 7: stream.StreamService.CreateChannel:input_type -> stream.CreateChannelRequest
-	4,  // 8: stream.StreamService.GetChannel:input_type -> stream.GetChannelRequest
-	5,  // 9: stream.StreamService.UpdateChannel:input_type -> stream.UpdateChannelRequest
-	6,  // 10: stream.StreamService.DeleteChannel:input_type -> stream.DeleteChannelRequest
-	14, // 11: stream.StreamService.GetStreamKey:input_type -> stream.GetStreamKeyRequest
-	16, // 12: stream.StreamService.ResetStreamKey:input_type -> stream.ResetStreamKeyRequest
-	7,  // 13: stream.StreamService.CreateSession:input_type -> stream.CreateSessionRequest
-	8,  // 14: stream.StreamService.GetSession:input_type -> stream.GetSessionRequest
-	9,  // 15: stream.StreamService.UpdateSession:input_type -> stream.UpdateSessionRequest
-	10, // 16: stream.StreamService.EndSession:input_type -> stream.EndSessionRequest
-	11, // 17: stream.StreamService.ListSessions:input_type -> stream.ListSessionsRequest
-	13, // 18: stream.StreamService.UpdateProcessingStatus:input_type -> stream.UpdateProcessingStatusRequest
-	1,  // 19: stream.StreamService.CreateChannel:output_type -> stream.ChannelResponse
-	1,  // 20: stream.StreamService.GetChannel:output_type -> stream.ChannelResponse
-	1,  // 21: stream.StreamService.UpdateChannel:output_type -> stream.ChannelResponse
-	19, // 22: stream.StreamService.DeleteChannel:output_type -> google.protobuf.Empty
-	15, // 23: stream.StreamService.GetStreamKey:output_type -> stream.GetStreamKeyResponse
-	1,  // 24: stream.StreamService.ResetStreamKey:output_type -> stream.ChannelResponse
-	2,  // 25: stream.StreamService.CreateSession:output_type -> stream.SessionResponse
-	2,  // 26: stream.StreamService.GetSession:output_type -> stream.SessionResponse
-	2,  // 27: stream.StreamService.UpdateSession:output_type -> stream.SessionResponse
-	19, // 28: stream.StreamService.EndSession:output_type -> google.protobuf.Empty
-	12, // 29: stream.StreamService.ListSessions:output_type -> stream.ListSessionsResponse
-	19, // 30: stream.StreamService.UpdateProcessingStatus:output_type -> google.protobuf.Empty
-	19, // [19:31] is the sub-list for method output_type
-	7,  // [7:19] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	20, // 2: stream.SessionResponse.start_time:type_name -> google.protobuf.Timestamp
+	20, // 3: stream.SessionResponse.end_time:type_name -> google.protobuf.Timestamp
+	20, // 4: stream.SessionResponse.last_heartbeat_at:type_name -> google.protobuf.Timestamp
+	2,  // 5: stream.ListSessionsResponse.sessions:type_name -> stream.SessionResponse
+	21, // 6: stream.ListSessionsResponse.meta_data:type_name -> common.PaginationMetadata
+	0,  // 7: stream.UpdateProcessingStatusRequest.status:type_name -> stream.StreamStatus
+	3,  // 8: stream.StreamService.CreateChannel:input_type -> stream.CreateChannelRequest
+	4,  // 9: stream.StreamService.GetChannel:input_type -> stream.GetChannelRequest
+	5,  // 10: stream.StreamService.UpdateChannel:input_type -> stream.UpdateChannelRequest
+	6,  // 11: stream.StreamService.DeleteChannel:input_type -> stream.DeleteChannelRequest
+	14, // 12: stream.StreamService.GetStreamKey:input_type -> stream.GetStreamKeyRequest
+	16, // 13: stream.StreamService.ResetStreamKey:input_type -> stream.ResetStreamKeyRequest
+	7,  // 14: stream.StreamService.CreateSession:input_type -> stream.CreateSessionRequest
+	8,  // 15: stream.StreamService.GetSession:input_type -> stream.GetSessionRequest
+	9,  // 16: stream.StreamService.UpdateSession:input_type -> stream.UpdateSessionRequest
+	10, // 17: stream.StreamService.EndSession:input_type -> stream.EndSessionRequest
+	11, // 18: stream.StreamService.ListSessions:input_type -> stream.ListSessionsRequest
+	13, // 19: stream.StreamService.UpdateProcessingStatus:input_type -> stream.UpdateProcessingStatusRequest
+	17, // 20: stream.StreamService.GetStaleSessions:input_type -> stream.GetStaleSessionsRequest
+	19, // 21: stream.StreamService.UpdateSessionHeartbeat:input_type -> stream.UpdateSessionHeartbeatRequest
+	1,  // 22: stream.StreamService.CreateChannel:output_type -> stream.ChannelResponse
+	1,  // 23: stream.StreamService.GetChannel:output_type -> stream.ChannelResponse
+	1,  // 24: stream.StreamService.UpdateChannel:output_type -> stream.ChannelResponse
+	22, // 25: stream.StreamService.DeleteChannel:output_type -> google.protobuf.Empty
+	15, // 26: stream.StreamService.GetStreamKey:output_type -> stream.GetStreamKeyResponse
+	1,  // 27: stream.StreamService.ResetStreamKey:output_type -> stream.ChannelResponse
+	2,  // 28: stream.StreamService.CreateSession:output_type -> stream.SessionResponse
+	2,  // 29: stream.StreamService.GetSession:output_type -> stream.SessionResponse
+	2,  // 30: stream.StreamService.UpdateSession:output_type -> stream.SessionResponse
+	22, // 31: stream.StreamService.EndSession:output_type -> google.protobuf.Empty
+	12, // 32: stream.StreamService.ListSessions:output_type -> stream.ListSessionsResponse
+	22, // 33: stream.StreamService.UpdateProcessingStatus:output_type -> google.protobuf.Empty
+	18, // 34: stream.StreamService.GetStaleSessions:output_type -> stream.GetStaleSessionsResponse
+	22, // 35: stream.StreamService.UpdateSessionHeartbeat:output_type -> google.protobuf.Empty
+	22, // [22:36] is the sub-list for method output_type
+	8,  // [8:22] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
-func init() { file_internal_proto_stream_stream_proto_init() }
-func file_internal_proto_stream_stream_proto_init() {
-	if File_internal_proto_stream_stream_proto != nil {
+func init() { file_stream_proto_init() }
+func file_stream_proto_init() {
+	if File_stream_proto != nil {
 		return
 	}
 	file_common_proto_init()
-	file_internal_proto_stream_stream_proto_msgTypes[3].OneofWrappers = []any{}
-	file_internal_proto_stream_stream_proto_msgTypes[4].OneofWrappers = []any{}
-	file_internal_proto_stream_stream_proto_msgTypes[8].OneofWrappers = []any{}
-	file_internal_proto_stream_stream_proto_msgTypes[12].OneofWrappers = []any{}
+	file_stream_proto_msgTypes[3].OneofWrappers = []any{}
+	file_stream_proto_msgTypes[4].OneofWrappers = []any{}
+	file_stream_proto_msgTypes[8].OneofWrappers = []any{}
+	file_stream_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_proto_stream_stream_proto_rawDesc), len(file_internal_proto_stream_stream_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_stream_proto_rawDesc), len(file_stream_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   16,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_internal_proto_stream_stream_proto_goTypes,
-		DependencyIndexes: file_internal_proto_stream_stream_proto_depIdxs,
-		EnumInfos:         file_internal_proto_stream_stream_proto_enumTypes,
-		MessageInfos:      file_internal_proto_stream_stream_proto_msgTypes,
+		GoTypes:           file_stream_proto_goTypes,
+		DependencyIndexes: file_stream_proto_depIdxs,
+		EnumInfos:         file_stream_proto_enumTypes,
+		MessageInfos:      file_stream_proto_msgTypes,
 	}.Build()
-	File_internal_proto_stream_stream_proto = out.File
-	file_internal_proto_stream_stream_proto_goTypes = nil
-	file_internal_proto_stream_stream_proto_depIdxs = nil
+	File_stream_proto = out.File
+	file_stream_proto_goTypes = nil
+	file_stream_proto_depIdxs = nil
 }

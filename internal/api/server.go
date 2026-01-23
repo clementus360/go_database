@@ -39,6 +39,13 @@ func (s *Server) handleError(err error, msg string) error {
 		return nil
 	}
 
+	if err.Error() == "channel already live" {
+		return status.Errorf(codes.AlreadyExists, "%s: the channel is currently live and cannot start a new session", msg)
+	}
+	if err.Error() == "channel not found" {
+		return status.Errorf(codes.NotFound, "%s: channel does not exist", msg)
+	}
+
 	// 1. Not Found
 	if errors.Is(err, pgx.ErrNoRows) {
 		return status.Errorf(codes.NotFound, "%s: the requested resource does not exist", msg)
@@ -281,12 +288,80 @@ func (s *Server) CreateSession(ctx context.Context, req *pbStream.CreateSessionR
 	return db.ToProtoSession(session), nil
 }
 
+func (s *Server) GetSession(ctx context.Context, req *pbStream.GetSessionRequest) (*pbStream.SessionResponse, error) {
+	session, err := s.DBClient.GetSession(ctx, req.Id)
+	if err != nil {
+		return nil, s.handleError(err, "get session")
+	}
+
+	// Map string from DB to the specific Proto Enum
+	var protoStatus pbStream.StreamStatus
+	switch strings.ToUpper(session.Status) {
+	case "LIVE":
+		protoStatus = pbStream.StreamStatus_LIVE
+	case "COMPLETE", "FINISHED": // Handle both just in case
+		protoStatus = pbStream.StreamStatus_COMPLETE
+	case "ERROR":
+		protoStatus = pbStream.StreamStatus_ERROR
+	default:
+		protoStatus = pbStream.StreamStatus_OFFLINE
+	}
+
+	return &pbStream.SessionResponse{
+		Id:         session.ID,
+		ChannelId:  session.ChannelID,
+		Status:     protoStatus,
+		Resolution: *session.Resolution,
+		Bitrate:    *session.Bitrate,
+		Codec:      *session.Codec,
+	}, nil
+}
+
+func (s *Server) UpdateSession(ctx context.Context, req *pbStream.UpdateSessionRequest) (*pbStream.SessionResponse, error) {
+	// 1. Prepare the map for the generic DB UpdateSession function
+	updates := make(map[string]interface{})
+
+	// Check optional proto fields (using proto3 optional / getters)
+	if req.Resolution != nil {
+		updates["resolution"] = req.GetResolution()
+	}
+	if req.Bitrate != nil {
+		// Map 'bitrate' from proto to 'bitrate_kbps' in DB
+		updates["bitrate_kbps"] = req.GetBitrate()
+	}
+	if req.ViewCount != nil {
+		updates["view_count"] = req.GetViewCount()
+	}
+
+	// 2. Call the DB Client (passing 0 for increment since this is a direct set)
+	if err := s.DBClient.UpdateSession(ctx, req.Id, updates, 0); err != nil {
+		return nil, s.handleError(err, "update session metrics")
+	}
+
+	// 3. Fetch the updated session to return the full SessionResponse
+	updatedSession, err := s.DBClient.GetSession(ctx, req.Id)
+	if err != nil {
+		return nil, s.handleError(err, "fetch updated session")
+	}
+
+	// Use your existing helper to convert DB model to Proto response
+	return db.ToProtoSession(updatedSession), nil
+}
+
 func (s *Server) UpdateProcessingStatus(ctx context.Context, req *pbStream.UpdateProcessingStatusRequest) (*emptypb.Empty, error) {
 	updates := make(map[string]interface{})
 	var inc int32
+
 	if req.Status != nil {
 		updates["status"] = req.GetStatus().String()
 	}
+
+	// New Absolute Logic: If current_view_count is provided, add it to the SET map
+	if req.CurrentViewCount != nil {
+		updates["view_count"] = req.GetCurrentViewCount()
+	}
+
+	// Legacy/Incremental Logic: Only used if specifically requested
 	if req.ViewCountIncrement != nil {
 		inc = req.GetViewCountIncrement()
 	}
@@ -332,4 +407,24 @@ func (s *Server) EndSession(ctx context.Context, req *pbStream.EndSessionRequest
 		return nil, s.handleError(err, "end session")
 	}
 	return &emptypb.Empty{}, nil
+}
+
+// UpdateSessionHeartbeat is called by the Stream Service when a heartbeat arrives
+func (s *Server) UpdateSessionHeartbeat(ctx context.Context, req *pbStream.UpdateSessionHeartbeatRequest) (*emptypb.Empty, error) {
+	if err := s.DBClient.UpdateSessionHeartbeat(ctx, req.SessionId); err != nil {
+		return nil, s.handleError(err, "update session heartbeat")
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// GetStaleSessions is called by the Stream Service Watchdog
+func (s *Server) GetStaleSessions(ctx context.Context, req *pbStream.GetStaleSessionsRequest) (*pbStream.GetStaleSessionsResponse, error) {
+	ids, err := s.DBClient.GetStaleSessions(ctx, req.ThresholdSeconds)
+	if err != nil {
+		return nil, s.handleError(err, "get stale sessions")
+	}
+
+	return &pbStream.GetStaleSessionsResponse{
+		SessionIds: ids,
+	}, nil
 }

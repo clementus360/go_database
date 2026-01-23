@@ -2,12 +2,13 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.0
 // - protoc             v6.33.0
-// source: internal/proto/stream/stream.proto
+// source: stream.proto
 
 package proto
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -32,6 +33,8 @@ const (
 	StreamService_EndSession_FullMethodName             = "/stream.StreamService/EndSession"
 	StreamService_ListSessions_FullMethodName           = "/stream.StreamService/ListSessions"
 	StreamService_UpdateProcessingStatus_FullMethodName = "/stream.StreamService/UpdateProcessingStatus"
+	StreamService_GetStaleSessions_FullMethodName       = "/stream.StreamService/GetStaleSessions"
+	StreamService_UpdateSessionHeartbeat_FullMethodName = "/stream.StreamService/UpdateSessionHeartbeat"
 )
 
 // StreamServiceClient is the client API for StreamService service.
@@ -53,6 +56,8 @@ type StreamServiceClient interface {
 	ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...grpc.CallOption) (*ListSessionsResponse, error)
 	// --- Specialized Ingest Operations ---
 	UpdateProcessingStatus(ctx context.Context, in *UpdateProcessingStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetStaleSessions(ctx context.Context, in *GetStaleSessionsRequest, opts ...grpc.CallOption) (*GetStaleSessionsResponse, error)
+	UpdateSessionHeartbeat(ctx context.Context, in *UpdateSessionHeartbeatRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type streamServiceClient struct {
@@ -183,6 +188,26 @@ func (c *streamServiceClient) UpdateProcessingStatus(ctx context.Context, in *Up
 	return out, nil
 }
 
+func (c *streamServiceClient) GetStaleSessions(ctx context.Context, in *GetStaleSessionsRequest, opts ...grpc.CallOption) (*GetStaleSessionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetStaleSessionsResponse)
+	err := c.cc.Invoke(ctx, StreamService_GetStaleSessions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *streamServiceClient) UpdateSessionHeartbeat(ctx context.Context, in *UpdateSessionHeartbeatRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, StreamService_UpdateSessionHeartbeat_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StreamServiceServer is the server API for StreamService service.
 // All implementations must embed UnimplementedStreamServiceServer
 // for forward compatibility.
@@ -202,6 +227,8 @@ type StreamServiceServer interface {
 	ListSessions(context.Context, *ListSessionsRequest) (*ListSessionsResponse, error)
 	// --- Specialized Ingest Operations ---
 	UpdateProcessingStatus(context.Context, *UpdateProcessingStatusRequest) (*emptypb.Empty, error)
+	GetStaleSessions(context.Context, *GetStaleSessionsRequest) (*GetStaleSessionsResponse, error)
+	UpdateSessionHeartbeat(context.Context, *UpdateSessionHeartbeatRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedStreamServiceServer()
 }
 
@@ -247,6 +274,12 @@ func (UnimplementedStreamServiceServer) ListSessions(context.Context, *ListSessi
 }
 func (UnimplementedStreamServiceServer) UpdateProcessingStatus(context.Context, *UpdateProcessingStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateProcessingStatus not implemented")
+}
+func (UnimplementedStreamServiceServer) GetStaleSessions(context.Context, *GetStaleSessionsRequest) (*GetStaleSessionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetStaleSessions not implemented")
+}
+func (UnimplementedStreamServiceServer) UpdateSessionHeartbeat(context.Context, *UpdateSessionHeartbeatRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateSessionHeartbeat not implemented")
 }
 func (UnimplementedStreamServiceServer) mustEmbedUnimplementedStreamServiceServer() {}
 func (UnimplementedStreamServiceServer) testEmbeddedByValue()                       {}
@@ -485,6 +518,42 @@ func _StreamService_UpdateProcessingStatus_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StreamService_GetStaleSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStaleSessionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreamServiceServer).GetStaleSessions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StreamService_GetStaleSessions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreamServiceServer).GetStaleSessions(ctx, req.(*GetStaleSessionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StreamService_UpdateSessionHeartbeat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSessionHeartbeatRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreamServiceServer).UpdateSessionHeartbeat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StreamService_UpdateSessionHeartbeat_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreamServiceServer).UpdateSessionHeartbeat(ctx, req.(*UpdateSessionHeartbeatRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StreamService_ServiceDesc is the grpc.ServiceDesc for StreamService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -540,7 +609,15 @@ var StreamService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "UpdateProcessingStatus",
 			Handler:    _StreamService_UpdateProcessingStatus_Handler,
 		},
+		{
+			MethodName: "GetStaleSessions",
+			Handler:    _StreamService_GetStaleSessions_Handler,
+		},
+		{
+			MethodName: "UpdateSessionHeartbeat",
+			Handler:    _StreamService_UpdateSessionHeartbeat_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/proto/stream/stream.proto",
+	Metadata: "stream.proto",
 }

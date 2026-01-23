@@ -23,7 +23,7 @@ services:
       - DATABASE_DSN=${DATABASE_DSN}
       - GRPC_PORT=${GRPC_PORT}
     ports:
-      - "50051:50051"
+      - "50055:50051"
     volumes:
       - ./certs:/app/certs:ro
 

@@ -38,7 +38,8 @@ CREATE TABLE stream_sessions (
     codec VARCHAR(20),
     view_count INT DEFAULT 0 NOT NULL,
     start_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    end_time TIMESTAMPTZ -- NULL while the stream is active
+    end_time TIMESTAMPTZ, -- NULL while the stream is active
+    last_heartbeat_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- 5. Indexes for Performance

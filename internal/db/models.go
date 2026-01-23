@@ -62,15 +62,16 @@ type ChannelDB struct {
 }
 
 type StreamSessionDB struct {
-	ID         int64      `db:"id"`
-	ChannelID  int32      `db:"channel_id"`
-	Status     string     `db:"status"`
-	Resolution *string    `db:"resolution"`
-	Bitrate    *int32     `db:"bitrate_kbps"`
-	Codec      *string    `db:"codec"`
-	ViewCount  int32      `db:"view_count"`
-	StartTime  time.Time  `db:"start_time"`
-	EndTime    *time.Time `db:"end_time"`
+	ID              int64      `db:"id"`
+	ChannelID       int32      `db:"channel_id"`
+	Status          string     `db:"status"`
+	Resolution      *string    `db:"resolution"`
+	Bitrate         *int32     `db:"bitrate_kbps"`
+	Codec           *string    `db:"codec"`
+	ViewCount       int32      `db:"view_count"`
+	StartTime       time.Time  `db:"start_time"`
+	EndTime         *time.Time `db:"end_time"`
+	LastHeartbeatAt time.Time  `db:"last_heartbeat_at"`
 }
 
 func ToProtoChannel(c *ChannelDB) *pbStream.ChannelResponse {
@@ -91,11 +92,12 @@ func ToProtoChannel(c *ChannelDB) *pbStream.ChannelResponse {
 
 func ToProtoSession(s *StreamSessionDB) *pbStream.SessionResponse {
 	resp := &pbStream.SessionResponse{
-		Id:        s.ID,
-		ChannelId: s.ChannelID,
-		Status:    pbStream.StreamStatus(pbStream.StreamStatus_value[s.Status]),
-		ViewCount: s.ViewCount,
-		StartTime: timestamppb.New(s.StartTime),
+		Id:              s.ID,
+		ChannelId:       s.ChannelID,
+		Status:          pbStream.StreamStatus(pbStream.StreamStatus_value[s.Status]),
+		ViewCount:       s.ViewCount,
+		StartTime:       timestamppb.New(s.StartTime),
+		LastHeartbeatAt: timestamppb.New(s.LastHeartbeatAt),
 	}
 	if s.Resolution != nil {
 		resp.Resolution = *s.Resolution

@@ -25,6 +25,10 @@ service StreamService {
     
     // --- Specialized Ingest Operations ---
     rpc UpdateProcessingStatus (UpdateProcessingStatusRequest) returns (google.protobuf.Empty);
+
+    rpc GetStaleSessions (GetStaleSessionsRequest) returns (GetStaleSessionsResponse);
+    rpc UpdateSessionHeartbeat (UpdateSessionHeartbeatRequest) returns (google.protobuf.Empty);
+    
 }
 
 enum StreamStatus {
@@ -54,6 +58,7 @@ message SessionResponse {
     int32 view_count = 7;
     google.protobuf.Timestamp start_time = 8;
     google.protobuf.Timestamp end_time = 9;
+    google.protobuf.Timestamp last_heartbeat_at = 10; // NEW
 }
 
 message CreateChannelRequest { int64 user_id = 1; string stream_key = 2; }
@@ -97,6 +102,7 @@ message UpdateProcessingStatusRequest {
     int64 session_id = 1;
     optional StreamStatus status = 2;
     optional int32 view_count_increment = 3;
+    optional int32 current_view_count = 4;
 }
 
 message GetStreamKeyRequest {
@@ -110,4 +116,16 @@ message GetStreamKeyResponse {
 message ResetStreamKeyRequest {
     int64 user_id = 1;
     string new_key = 2;
+}
+
+message GetStaleSessionsRequest {
+    int32 threshold_seconds = 1;
+}
+
+message GetStaleSessionsResponse {
+    repeated int64 session_ids = 1;
+}
+
+message UpdateSessionHeartbeatRequest {
+    int64 session_id = 1;
 }

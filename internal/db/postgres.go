@@ -60,7 +60,7 @@ func NewClient(ctx context.Context, dsn string) (*Client, error) {
 
 // ResetDatabase wipes all user and stream data and restarts the BIGSERIAL IDs.
 func (c *Client) ResetDatabase(ctx context.Context) error {
-	query := `TRUNCATE TABLE users, streams RESTART IDENTITY CASCADE`
+	query := `TRUNCATE TABLE stream_sessions RESTART IDENTITY CASCADE`
 	_, err := c.pool.Exec(ctx, query)
 	return err
 }
