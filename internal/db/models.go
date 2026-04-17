@@ -11,30 +11,36 @@ import (
 // --- USER MODEL ---
 
 type UserDB struct {
-	ID           int64      `db:"id"`
-	Username     string     `db:"username"`
-	Email        string     `db:"email"`
-	PasswordHash string     `db:"password_hash"`
-	Roles        []string   `db:"roles"`
-	Status       string     `db:"status"` // Added: Maps to user_status ENUM
-	CreatedAt    time.Time  `db:"created_at"`
-	UpdatedAt    time.Time  `db:"updated_at"`
-	DeletedAt    *time.Time `db:"deleted_at"`
-	IsVerified   bool       `db:"is_verified"` // Added: New field to track email verification
+	ID              int64      `db:"id"`
+	Username        string     `db:"username"`
+	Email           string     `db:"email"`
+	PasswordHash    string     `db:"password_hash"`
+	Roles           []string   `db:"roles"`
+	Status          string     `db:"status"` // Added: Maps to user_status ENUM
+	CreatedAt       time.Time  `db:"created_at"`
+	UpdatedAt       time.Time  `db:"updated_at"`
+	DeletedAt       *time.Time `db:"deleted_at"`
+	IsVerified      bool       `db:"is_verified"` // Added: New field to track email verification
+	ProfileImageURL *string    `db:"profile_image_url"`
 }
 
 func ToProtoUser(u *UserDB) *pbUser.User {
 	if u == nil {
 		return nil
 	}
+	profileImageURL := ""
+	if u.ProfileImageURL != nil {
+		profileImageURL = *u.ProfileImageURL
+	}
 	return &pbUser.User{
-		UserId:     u.ID,
-		Username:   u.Username,
-		Email:      u.Email,
-		Roles:      u.Roles,
-		Status:     pbUser.UserStatus(pbUser.UserStatus_value[u.Status]), // Map string to Proto Enum
-		CreatedAt:  timestamppb.New(u.CreatedAt),
-		IsVerified: u.IsVerified,
+		UserId:          u.ID,
+		Username:        u.Username,
+		Email:           u.Email,
+		Roles:           u.Roles,
+		Status:          pbUser.UserStatus(pbUser.UserStatus_value[u.Status]), // Map string to Proto Enum
+		CreatedAt:       timestamppb.New(u.CreatedAt),
+		IsVerified:      u.IsVerified,
+		ProfileImageUrl: profileImageURL,
 	}
 }
 
@@ -68,6 +74,7 @@ type StreamSessionDB struct {
 	Resolution      *string    `db:"resolution"`
 	Bitrate         *int32     `db:"bitrate_kbps"`
 	Codec           *string    `db:"codec"`
+	Category        string     `db:"category"` // NEW: Added for stream type/tag
 	ViewCount       int32      `db:"view_count"`
 	StartTime       time.Time  `db:"start_time"`
 	EndTime         *time.Time `db:"end_time"`
@@ -96,9 +103,12 @@ func ToProtoSession(s *StreamSessionDB) *pbStream.SessionResponse {
 		ChannelId:       s.ChannelID,
 		Status:          pbStream.StreamStatus(pbStream.StreamStatus_value[s.Status]),
 		ViewCount:       s.ViewCount,
+		Category:        s.Category, // NEW: Mapping DB string to Proto string
 		StartTime:       timestamppb.New(s.StartTime),
 		LastHeartbeatAt: timestamppb.New(s.LastHeartbeatAt),
 	}
+
+	// Existing optional handling
 	if s.Resolution != nil {
 		resp.Resolution = *s.Resolution
 	}
@@ -111,5 +121,6 @@ func ToProtoSession(s *StreamSessionDB) *pbStream.SessionResponse {
 	if s.EndTime != nil {
 		resp.EndTime = timestamppb.New(*s.EndTime)
 	}
+
 	return resp
 }

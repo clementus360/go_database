@@ -11,6 +11,7 @@ CREATE TABLE users (
     roles TEXT[] DEFAULT '{user}' NOT NULL,
     status user_status DEFAULT 'ACTIVE' NOT NULL,
     is_verified BOOLEAN DEFAULT FALSE NOT NULL,
+    profile_image_url TEXT,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at TIMESTAMPTZ
@@ -36,6 +37,7 @@ CREATE TABLE stream_sessions (
     resolution VARCHAR(20),
     bitrate_kbps INT,
     codec VARCHAR(20),
+    category VARCHAR(50),
     view_count INT DEFAULT 0 NOT NULL,
     start_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     end_time TIMESTAMPTZ, -- NULL while the stream is active

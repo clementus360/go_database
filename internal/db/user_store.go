@@ -28,13 +28,13 @@ func (c *Client) CreateUser(ctx context.Context, user *UserDB) (*UserDB, error) 
 // GetUserByUsername - Used by Auth Service for login
 func (c *Client) GetUserByUsername(ctx context.Context, username string) (*UserDB, error) {
 	query := `
-        SELECT id, username, email, password_hash, roles, status, created_at
+	SELECT id, username, email, password_hash, roles, status, created_at, is_verified, profile_image_url
         FROM users
         WHERE username = $1 AND deleted_at IS NULL`
 
 	var u UserDB
 	err := c.pool.QueryRow(ctx, query, username).Scan(
-		&u.ID, &u.Username, &u.Email, &u.PasswordHash, &u.Roles, &u.Status, &u.CreatedAt,
+		&u.ID, &u.Username, &u.Email, &u.PasswordHash, &u.Roles, &u.Status, &u.CreatedAt, &u.IsVerified, &u.ProfileImageURL,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -48,13 +48,13 @@ func (c *Client) GetUserByUsername(ctx context.Context, username string) (*UserD
 // GetUserByID - Used for profile lookups
 func (c *Client) GetUserByID(ctx context.Context, id int64) (*UserDB, error) {
 	query := `
-        SELECT id, username, email, password_hash, roles, status, created_at, is_verified
+	SELECT id, username, email, password_hash, roles, status, created_at, is_verified, profile_image_url
         FROM users
         WHERE id = $1 AND deleted_at IS NULL`
 
 	var u UserDB
 	err := c.pool.QueryRow(ctx, query, id).Scan(
-		&u.ID, &u.Username, &u.Email, &u.PasswordHash, &u.Roles, &u.Status, &u.CreatedAt, &u.IsVerified,
+		&u.ID, &u.Username, &u.Email, &u.PasswordHash, &u.Roles, &u.Status, &u.CreatedAt, &u.IsVerified, &u.ProfileImageURL,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -82,6 +82,19 @@ func (c *Client) UpdateUserPassword(ctx context.Context, id int64, newHash strin
 func (c *Client) UpdateUserStatus(ctx context.Context, id int64, status string) error {
 	query := `UPDATE users SET status = $1, updated_at = NOW() WHERE id = $2 AND deleted_at IS NULL`
 	res, err := c.pool.Exec(ctx, query, status, id)
+	if err != nil {
+		return err
+	}
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("db: user not found or deleted")
+	}
+	return nil
+}
+
+// UpdateUserProfilePicture - Update the profile image URL (set to NULL when empty)
+func (c *Client) UpdateUserProfilePicture(ctx context.Context, id int64, profileImageURL string) error {
+	query := `UPDATE users SET profile_image_url = NULLIF($1, ''), updated_at = NOW() WHERE id = $2 AND deleted_at IS NULL`
+	res, err := c.pool.Exec(ctx, query, profileImageURL, id)
 	if err != nil {
 		return err
 	}

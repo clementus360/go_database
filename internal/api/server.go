@@ -151,6 +151,20 @@ func (s *Server) UpdateUserStatus(ctx context.Context, req *pbUser.UpdateUserSta
 	return &emptypb.Empty{}, nil
 }
 
+func (s *Server) UpdateUserProfilePicture(ctx context.Context, req *pbUser.UpdateUserProfilePictureRequest) (*emptypb.Empty, error) {
+	if req == nil || req.GetUserId() <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "a valid user_id is required")
+	}
+
+	err := s.DBClient.UpdateUserProfilePicture(ctx, req.GetUserId(), req.GetProfileImageUrl())
+	if err != nil {
+		return nil, s.handleError(err, "failed to update profile picture")
+	}
+
+	s.logger.Infof("Profile picture updated for user ID=%d", req.GetUserId())
+	return &emptypb.Empty{}, nil
+}
+
 func (s *Server) VerifyUser(ctx context.Context, req *pbUser.VerifyUserRequest) (*emptypb.Empty, error) {
 	if req.GetUserId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "user_id is required")
@@ -281,10 +295,13 @@ func (s *Server) CreateSession(ctx context.Context, req *pbStream.CreateSessionR
 		Resolution: &req.Resolution,
 		Bitrate:    &req.Bitrate,
 		Codec:      &req.Codec,
+		Category:   req.Category, // NEW: Capture from Ingest/Manager request
 	})
+
 	if err != nil {
 		return nil, s.handleError(err, "create session")
 	}
+
 	return db.ToProtoSession(session), nil
 }
 

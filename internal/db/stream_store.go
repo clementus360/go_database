@@ -116,7 +116,7 @@ func (c *Client) CreateSession(ctx context.Context, s *StreamSessionDB) (*Stream
 	}
 	defer tx.Rollback(ctx)
 
-	// Ensure atomic state change
+	// 1. Atomic Check & Lock
 	var isLive bool
 	err = tx.QueryRow(ctx, "SELECT is_live FROM channels WHERE id = $1 FOR UPDATE", s.ChannelID).Scan(&isLive)
 	if err != nil {
@@ -126,14 +126,21 @@ func (c *Client) CreateSession(ctx context.Context, s *StreamSessionDB) (*Stream
 		return nil, fmt.Errorf("channel already live")
 	}
 
+	// 2. Mark Channel Live
 	_, err = tx.Exec(ctx, "UPDATE channels SET is_live = true WHERE id = $1", s.ChannelID)
 	if err != nil {
 		return nil, err
 	}
 
-	query := `INSERT INTO stream_sessions (channel_id, status, resolution, bitrate_kbps, codec)
-              VALUES ($1, 'LIVE', $2, $3, $4) RETURNING id, start_time`
-	err = tx.QueryRow(ctx, query, s.ChannelID, s.Resolution, s.Bitrate, s.Codec).Scan(&s.ID, &s.StartTime)
+	// 3. INSERT Session with Category
+	query := `INSERT INTO stream_sessions (channel_id, status, resolution, bitrate_kbps, codec, category)
+              VALUES ($1, 'LIVE', $2, $3, $4, $5) 
+              RETURNING id, start_time`
+
+	// Pass s.Category (from CreateSessionRequest) into the SQL executor
+	err = tx.QueryRow(ctx, query, s.ChannelID, s.Resolution, s.Bitrate, s.Codec, s.Category).
+		Scan(&s.ID, &s.StartTime)
+
 	if err != nil {
 		return nil, err
 	}
